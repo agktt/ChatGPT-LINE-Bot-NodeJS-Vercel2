@@ -6,7 +6,7 @@ import { COMMAND_BOT_CONTINUE, COMMAND_BOT_TALK } from '../commands/index.js';
 import Context from '../context.js';
 import { updateHistory } from '../history/index.js';
 import { getPrompt, setPrompt } from '../prompt/index.js';
-import mebaruSystemPrompt from '../prompt/mebaru.js'; // ✅ 追加！
+import mebaruSystemPrompt from '../../prompt/fish-character.js'; // ✅ キャラ設定プロンプトの読み込み
 
 /**
  * @param {Context} context
@@ -26,10 +26,12 @@ const exec = (context) => check(context) && (
   async () => {
     const prompt = getPrompt(context.userId);
 
-    // ✅ 外部プロンプトを使う
+    // ✅ キャラ設定を system プロンプトとして追加
     prompt.write('system', mebaruSystemPrompt);
 
+    // ユーザーの入力を追加
     prompt.write(ROLE_HUMAN, `${t('__COMPLETION_DEFAULT_AI_TONE')(config.BOT_TONE)}${context.trimmedText}`).write(ROLE_AI);
+
     try {
       const { text, isFinishReasonStop } = await generateCompletion({ prompt });
       prompt.patch(text);

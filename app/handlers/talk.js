@@ -6,7 +6,8 @@ import { COMMAND_BOT_CONTINUE, COMMAND_BOT_TALK } from '../commands/index.js';
 import Context from '../context.js';
 import { updateHistory } from '../history/index.js';
 import { getPrompt, setPrompt } from '../prompt/index.js';
-import mebaruSystemPrompt from '../../prompt/fish-character.js'; // ✅ キャラ設定プロンプトの読み込み
+// app/handlers/talk.js の中
+import mebaruSystemPrompt from '../prompt/fish-character.js'; // ✅ キャラ設定プロンプトの読み込み
 
 /**
  * @param {Context} context

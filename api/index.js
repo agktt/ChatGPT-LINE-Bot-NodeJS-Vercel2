@@ -1,5 +1,5 @@
 import express from 'express';
-import axios from 'axios';  // axiosをインポート
+import axios from 'axios'; // axiosをインポート
 import { handleEvents, printPrompts } from '../app/index.js';
 import config from '../config/index.js';
 import { validateLineSignature } from '../middleware/index.js';
@@ -70,15 +70,19 @@ app.post(config.APP_WEBHOOK_PATH, validateLineSignature, async (req, res) => {
       }
     });
 
+    // デバッグログ：レスポンスデータの確認
+    console.log("OpenAI API Response:", response.data);
+
     // OpenAIからの応答を取得
     const aiResponse = response.data.choices[0].message.content.trim();
+    console.log("AI Response:", aiResponse);  // 応答内容を確認
 
     // 生成された応答をLINEに返す
     await handleEvents(req.body.events, aiResponse);
 
     res.sendStatus(200);
   } catch (err) {
-    console.error(err.message);
+    console.error('Error:', err.message);
     res.sendStatus(500);
   }
   

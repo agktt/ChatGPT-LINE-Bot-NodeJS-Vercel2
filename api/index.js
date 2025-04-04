@@ -18,7 +18,7 @@ app.use(express.json({
 const openAiApiKey = config.OPENAI_API_KEY;
 
 // モデルを設定（Vercelの環境変数を使用）
-const model = process.env.OPENAI_MODEL || 'gpt-3.5-turbo'; // 環境変数があればgpt-4、なければgpt-3.5-turbo
+const model = process.env.GPT_MODEL || 'gpt-3.5-turbo'; // 環境変数GPT_MODELがあればそれを使い、なければgpt-3.5-turboを使用
 
 app.get('/', (req, res) => {
   if (config.APP_URL) {

@@ -1,5 +1,4 @@
 import express from 'express';
-import axios from 'axios'; // axiosをインポート
 import { handleEvents, printPrompts } from '../app/index.js';
 import config from '../config/index.js';
 import { validateLineSignature } from '../middleware/index.js';
@@ -13,9 +12,6 @@ app.use(express.json({
     req.rawBody = buf.toString();
   },
 }));
-
-// OpenAI APIキーを設定
-const openAiApiKey = config.OPENAI_API_KEY;
 
 app.get('/', (req, res) => {
   if (config.APP_URL) {
@@ -34,24 +30,7 @@ app.get('/info', async (req, res) => {
 app.post(config.APP_WEBHOOK_PATH, validateLineSignature, async (req, res) => {
   try {
     await storage.initialize();
-    
-    // 受け取ったメッセージをOpenAI APIに送信
-    const message = req.body.events[0].message.text; // LINEからのメッセージ
-    const response = await axios.post('https://api.openai.com/v1/completions', {
-      model: 'gpt-3.5-turbo',
-      messages: [{ role: 'user', content: message }],
-    }, {
-      headers: {
-        'Authorization': `Bearer ${openAiApiKey}`,
-        'Content-Type': 'application/json',
-      }
-    });
-
-    const aiResponse = response.data.choices[0].message.content; // OpenAIからの応答
-
-    // 生成された応答をLINEに返す
-    await handleEvents(req.body.events, aiResponse);
-
+    await handleEvents(req.body.events);
     res.sendStatus(200);
   } catch (err) {
     console.error(err.message);

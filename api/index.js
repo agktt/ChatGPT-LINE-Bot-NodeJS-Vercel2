@@ -17,6 +17,9 @@ app.use(express.json({
 // OpenAI APIキーを設定
 const openAiApiKey = config.OPENAI_API_KEY;
 
+// モデルを設定（Vercelの環境変数を使用）
+const model = process.env.OPENAI_MODEL || 'gpt-3.5-turbo'; // 環境変数があればgpt-4、なければgpt-3.5-turbo
+
 app.get('/', (req, res) => {
   if (config.APP_URL) {
     res.redirect(config.APP_URL);
@@ -49,7 +52,7 @@ app.post(config.APP_WEBHOOK_PATH, validateLineSignature, async (req, res) => {
 
     // OpenAI APIリクエスト
     const response = await axios.post('https://api.openai.com/v1/chat/completions', {
- 　　 model: model, // gpt-4またはgpt-3.5-turbo
+      model: model, // 使用するモデル（gpt-4またはgpt-3.5-turbo）
       messages: [
         {
           role: 'system',  // システムメッセージ：キャラクター設定

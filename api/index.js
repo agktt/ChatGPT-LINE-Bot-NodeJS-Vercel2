@@ -49,7 +49,7 @@ app.post(config.APP_WEBHOOK_PATH, validateLineSignature, async (req, res) => {
 
     // OpenAI APIリクエスト
     const response = await axios.post('https://api.openai.com/v1/chat/completions', {
-      model: 'gpt-3.5-turbo', // 使用するモデル
+ 　　 model: model, // gpt-4またはgpt-3.5-turbo
       messages: [
         {
           role: 'system',  // システムメッセージ：キャラクター設定

@@ -6,6 +6,7 @@ import { COMMAND_BOT_CONTINUE, COMMAND_BOT_TALK } from '../commands/index.js';
 import Context from '../context.js';
 import { updateHistory } from '../history/index.js';
 import { getPrompt, setPrompt } from '../prompt/index.js';
+import mebaruSystemPrompt from '../prompt/mebaru.js'; // ✅ 追加！
 
 /**
  * @param {Context} context
@@ -24,8 +25,9 @@ const check = (context) => (
 const exec = (context) => check(context) && (
   async () => {
     const prompt = getPrompt(context.userId);
-  // ★ここを追加：「日本語で返答してください」と伝える system 指示
-    prompt.write('system', 'あなたは親しみやすい魚キャラです。すべての返答は日本語で、丁寧で明るく答えてください。');
+
+    // ✅ 外部プロンプトを使う
+    prompt.write('system', mebaruSystemPrompt);
 
     prompt.write(ROLE_HUMAN, `${t('__COMPLETION_DEFAULT_AI_TONE')(config.BOT_TONE)}${context.trimmedText}`).write(ROLE_AI);
     try {

@@ -8,13 +8,11 @@ import { updateHistory } from '../history/index.js';
 import { getPrompt, setPrompt } from '../prompt/index.js';
 
 import mebaruSystemPrompt from '../prompt/fishCharacter.js'; // 🐟 メバルくんのキャラ設定
+import { getStaticFaqAnswer, staticFaqMap } from '../faq/index.js'; // ✅ ここでインポート！
 
 import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
-
-// ✅ FAQ静的回答を読み込む
-import { getStaticFaqAnswer } from '../faq/index.js'; // ← これを追加！
 
 // ✅ __dirnameをESMで再現
 const __filename = fileURLToPath(import.meta.url);
@@ -42,10 +40,22 @@ const exec = (context) => check(context) && (
   async () => {
     const userInput = context.trimmedText;
 
+    // ✅ デバッグログ
+    const normalize = (text) =>
+      text
+        .replace(/\s/g, '')
+        .replace(/[！？!?。、.，、]/g, '')
+        .normalize('NFKC')
+        .toLowerCase();
+
+    console.log("🟡 [DEBUG] userInput (raw):", JSON.stringify(userInput));
+    console.log("🟡 [DEBUG] normalized input:", normalize(userInput));
+    console.log("🟢 [DEBUG] staticFaqMap (normalized):", staticFaqMap.map(f => normalize(f.question)));
+
     // ✅ Step 1: 静的FAQに一致するかチェック
     const staticAnswer = getStaticFaqAnswer(userInput);
     if (staticAnswer) {
-      context.pushText(staticAnswer); // ChatGPTを通さず即返信！
+      context.pushText(staticAnswer);
       return context;
     }
 

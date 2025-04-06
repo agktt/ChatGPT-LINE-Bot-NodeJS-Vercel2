@@ -78,6 +78,9 @@ ${faqText}
     prompt.write(ROLE_HUMAN, `${t('__COMPLETION_DEFAULT_AI_TONE')(config.BOT_TONE)}${userInput}`).write(ROLE_AI);
 
     try {
+      // ✅ 使用モデルのログを出力！
+      console.log("🧠 [DEBUG] Using OpenAI model:", config.OPENAI_COMPLETION_MODEL);
+
       const { text, isFinishReasonStop } = await generateCompletion({ prompt });
       prompt.patch(text);
       setPrompt(context.userId, prompt);

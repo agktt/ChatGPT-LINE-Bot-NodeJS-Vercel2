@@ -4,7 +4,6 @@ import { t } from '../../locales/index.js';
 import { ROLE_AI, ROLE_HUMAN, ROLE_SYSTEM } from '../../services/openai.js';
 import { addMark } from '../../utils/index.js';
 import Message from './message.js';
-import mebaruSystemPrompt from './fishCharacter.js'; // ★ メバルくんのキャラプロンプトを読み込み！
 
 const MAX_MESSAGES = config.APP_MAX_PROMPT_MESSAGES + 3;
 const MAX_TOKENS = config.APP_MAX_PROMPT_TOKENS;
@@ -14,7 +13,7 @@ class Prompt {
 
   constructor() {
     this
-      .write(ROLE_SYSTEM, mebaruSystemPrompt) // ★ キャラ固定のプロンプトを使う
+      .write(ROLE_SYSTEM, config.APP_INIT_PROMPT || t('__COMPLETION_DEFAULT_SYSTEM_PROMPT'))
       .write(ROLE_HUMAN, `${t('__COMPLETION_DEFAULT_HUMAN_PROMPT')(config.HUMAN_NAME)}${config.HUMAN_INIT_PROMPT}`)
       .write(ROLE_AI, `${t('__COMPLETION_DEFAULT_AI_PROMPT')(config.BOT_NAME)}${config.BOT_INIT_PROMPT}`);
   }

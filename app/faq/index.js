@@ -99,10 +99,19 @@ export const staticFaqMap = [
   }
 ];
 
+// より柔軟に一致させるための正規化関数
+const normalize = (text) =>
+  text
+    .replace(/\s/g, '') // 全空白削除
+    .replace(/[！？!?\u200b]/g, '') // 記号やゼロ幅スペース削除
+    .normalize('NFKC') // Unicode正規化
+    .toLowerCase();
+
+// ユーザーの質問がマップと一致するか判定する関数
 export const getStaticFaqAnswer = (userMessage) => {
-  const trimmed = userMessage.trim().toLowerCase();
+  const normalizedInput = normalize(userMessage);
   for (const faq of staticFaqMap) {
-    if (faq.question.toLowerCase() === trimmed) {
+    if (normalize(faq.question) === normalizedInput) {
       return faq.answer;
     }
   }

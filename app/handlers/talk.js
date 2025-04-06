@@ -6,7 +6,12 @@ import { COMMAND_BOT_CONTINUE, COMMAND_BOT_TALK } from '../commands/index.js';
 import Context from '../context.js';
 import { updateHistory } from '../history/index.js';
 import { getPrompt, setPrompt } from '../prompt/index.js';
-import mebaruSystemPrompt from '../prompt/fishCharacter.js'; // ★ キャラ設定を読み込み
+
+import mebaruSystemPrompt from '../prompt/fishCharacter.js'; // キャラ設定
+import fs from 'fs';
+
+// FAQ読み込み（同期的でOK）
+const faqText = fs.readFileSync('app/faq/faq.txt', 'utf-8');
 
 /**
  * @param {Context} context
@@ -26,10 +31,16 @@ const exec = (context) => check(context) && (
   async () => {
     const prompt = getPrompt(context.userId);
 
-    // ★ キャラ設定を system プロンプトとして追加
-    prompt.write('system', mebaruSystemPrompt);
+    // systemプロンプト（キャラ設定＋FAQ指示）
+    prompt.write('system', `
+${mebaruSystemPrompt}
 
-    // ユーザーの質問
+以下はサービスに関するFAQです。ユーザーの質問と完全に一致しなくても、意味が近い内容があればそれを参考にして答えてください。FAQにない内容はわからないと答えても構いません。
+
+${faqText}
+    `.trim());
+
+    // ユーザーの入力
     prompt.write(ROLE_HUMAN, `${t('__COMPLETION_DEFAULT_AI_TONE')(config.BOT_TONE)}${context.trimmedText}`).write(ROLE_AI);
 
     try {

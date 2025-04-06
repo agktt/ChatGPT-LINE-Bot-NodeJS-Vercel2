@@ -13,6 +13,9 @@ import fs from 'fs';
 import path from 'path';
 import { fileURLToPath } from 'url';
 
+// ✅ FAQ静的回答を読み込む
+import { getStaticFaqAnswer } from '../faq/index.js'; // ← これを追加！
+
 // ✅ __dirnameをESMで再現
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -37,9 +40,18 @@ const check = (context) => (
  */
 const exec = (context) => check(context) && (
   async () => {
+    const userInput = context.trimmedText;
+
+    // ✅ Step 1: 静的FAQに一致するかチェック
+    const staticAnswer = getStaticFaqAnswer(userInput);
+    if (staticAnswer) {
+      context.pushText(staticAnswer); // ChatGPTを通さず即返信！
+      return context;
+    }
+
+    // ✅ Step 2: ChatGPT用プロンプトを生成（従来どおり）
     const prompt = getPrompt(context.userId);
 
-    // ✅ キャラ設定＋FAQ全文を system プロンプトにまとめる
     prompt.write('system', `
 ${mebaruSystemPrompt}
 
@@ -48,8 +60,7 @@ ${mebaruSystemPrompt}
 ${faqText}
     `.trim());
 
-    // ✅ ユーザー入力を追加
-    prompt.write(ROLE_HUMAN, `${t('__COMPLETION_DEFAULT_AI_TONE')(config.BOT_TONE)}${context.trimmedText}`).write(ROLE_AI);
+    prompt.write(ROLE_HUMAN, `${t('__COMPLETION_DEFAULT_AI_TONE')(config.BOT_TONE)}${userInput}`).write(ROLE_AI);
 
     try {
       const { text, isFinishReasonStop } = await generateCompletion({ prompt });
@@ -61,6 +72,7 @@ ${faqText}
     } catch (err) {
       context.pushError(err);
     }
+
     return context;
   }
 )();

@@ -192,18 +192,29 @@ class Context {
    * @param {Array<Command>} actions
    * @returns {Context}
    */
-　　pushText(text, actions = []) {
+pushText(text, actions = []) {
   if (!text) return this;
 
-  const maxLength = 1000; // 安全な上限（LINEは最大5000文字だけど余裕を持たせる）
-
-  const chunks = text.match(new RegExp(`.{1,${maxLength}}`, 'g')); // 正規表現で分割
+  const maxLength = 1000;
+  const regex = new RegExp('.{1,' + maxLength + '}', 'g');
+  const chunks = text.match(regex);
 
   chunks.forEach((chunk, index) => {
     const message = new TextMessage({
       type: MESSAGE_TYPE_TEXT,
       text: convertText(chunk),
     });
+
+    if (index === chunks.length - 1) {
+      message.setQuickReply(actions);
+    }
+
+    this.messages.push(message);
+  });
+
+  return this;
+}
+
   /**
    * @param {string} url
    * @param {Array<Command>} actions

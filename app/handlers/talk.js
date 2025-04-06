@@ -8,7 +8,7 @@ import { updateHistory } from '../history/index.js';
 import { getPrompt, setPrompt } from '../prompt/index.js';
 
 import mebaruSystemPrompt from '../prompt/fishCharacter.js'; // 🐟 メバルくんのキャラ設定
-import { getStaticFaqAnswer, staticFaqMap } from '../faq/index.js'; // ✅ ここでインポート！
+import { getStaticFaqAnswer, staticFaqMap } from '../faq/index.js'; // ✅ FAQマップ参照
 
 import fs from 'fs';
 import path from 'path';
@@ -40,7 +40,7 @@ const exec = (context) => check(context) && (
   async () => {
     const userInput = context.trimmedText;
 
-    // ✅ デバッグログ
+    // ✅ 正規化関数
     const normalize = (text) =>
       text
         .replace(/\s/g, '')
@@ -48,9 +48,14 @@ const exec = (context) => check(context) && (
         .normalize('NFKC')
         .toLowerCase();
 
+    // ✅ デバッグログ（静的FAQとの比較確認用）
     console.log("🟡 [DEBUG] userInput (raw):", JSON.stringify(userInput));
     console.log("🟡 [DEBUG] normalized input:", normalize(userInput));
     console.log("🟢 [DEBUG] staticFaqMap (normalized):", staticFaqMap.map(f => normalize(f.question)));
+
+    for (const faq of staticFaqMap) {
+      console.log("🔍 FAQ check →", normalize(faq.question), "vs", normalize(userInput));
+    }
 
     // ✅ Step 1: 静的FAQに一致するかチェック
     const staticAnswer = getStaticFaqAnswer(userInput);
@@ -59,7 +64,7 @@ const exec = (context) => check(context) && (
       return context;
     }
 
-    // ✅ Step 2: ChatGPT用プロンプトを生成（従来どおり）
+    // ✅ Step 2: ChatGPT用プロンプト生成
     const prompt = getPrompt(context.userId);
 
     prompt.write('system', `

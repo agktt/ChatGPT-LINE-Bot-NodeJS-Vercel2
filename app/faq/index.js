@@ -117,6 +117,3 @@ export const getStaticFaqAnswer = (userMessage) => {
   }
   return null;
 };
-
-// ✅ デバッグ用にも使える
-export { staticFaqMap };

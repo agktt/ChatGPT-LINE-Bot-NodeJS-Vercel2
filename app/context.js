@@ -192,28 +192,16 @@ class Context {
    * @param {Array<Command>} actions
    * @returns {Context}
    */
-pushText(text, actions = []) {
-  if (!text) return this;
-
-  const maxLength = 1000;
-  const regex = new RegExp('.{1,' + maxLength + '}', 'g');
-  const chunks = text.match(regex);
-
-  chunks.forEach((chunk, index) => {
+  pushText(text, actions = []) {
+    if (!text) return this;
     const message = new TextMessage({
       type: MESSAGE_TYPE_TEXT,
-      text: convertText(chunk),
+      text: convertText(text),
     });
-
-    if (index === chunks.length - 1) {
-      message.setQuickReply(actions);
-    }
-
+    message.setQuickReply(actions);
     this.messages.push(message);
-  });
-
-  return this;
-}
+    return this;
+  }
 
   /**
    * @param {string} url

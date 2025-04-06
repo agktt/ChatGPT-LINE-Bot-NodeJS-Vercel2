@@ -7,11 +7,13 @@ import Context from '../context.js';
 import { updateHistory } from '../history/index.js';
 import { getPrompt, setPrompt } from '../prompt/index.js';
 
-import mebaruSystemPrompt from '../prompt/fishCharacter.js'; // キャラ設定
+import mebaruSystemPrompt from '../prompt/fishCharacter.js'; // 🐟 メバルくんキャラ設定
 import fs from 'fs';
+import path from 'path';
 
-// FAQ読み込み（同期的でOK）
-const faqText = fs.readFileSync('app/faq/faq.txt', 'utf-8');
+// ✅ FAQ読み込み（Vercel対応の絶対パス）
+const faqPath = path.resolve('app/faq/faq.txt');
+const faqText = fs.readFileSync(faqPath, 'utf-8');
 
 /**
  * @param {Context} context
@@ -31,7 +33,7 @@ const exec = (context) => check(context) && (
   async () => {
     const prompt = getPrompt(context.userId);
 
-    // systemプロンプト（キャラ設定＋FAQ指示）
+    // ✅ systemプロンプトにキャラ設定＋FAQをまとめて渡す
     prompt.write('system', `
 ${mebaruSystemPrompt}
 
@@ -40,7 +42,7 @@ ${mebaruSystemPrompt}
 ${faqText}
     `.trim());
 
-    // ユーザーの入力
+    // ✅ ユーザーの入力を追加
     prompt.write(ROLE_HUMAN, `${t('__COMPLETION_DEFAULT_AI_TONE')(config.BOT_TONE)}${context.trimmedText}`).write(ROLE_AI);
 
     try {

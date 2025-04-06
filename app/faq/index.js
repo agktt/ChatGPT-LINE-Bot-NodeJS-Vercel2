@@ -95,25 +95,28 @@ export const staticFaqMap = [
 ・入退場／属性／混雑分析  
 ・クラウド連携でいつでも確認可能！
 
-それが、**株式会社TARA**の「メバル」なんです🐠✨`
+それが、株式会社TARAの「メバル」なんです🐠✨`
   }
 ];
 
-// より柔軟に一致させるための正規化関数
+// ✅ normalize 関数をFAQファイル側でも使う
 const normalize = (text) =>
   text
-    .replace(/\s/g, '') // 全空白削除
-    .replace(/[！？!?\u200b]/g, '') // 記号やゼロ幅スペース削除
-    .normalize('NFKC') // Unicode正規化
+    .replace(/\s/g, '')
+    .replace(/[！？!?。、.，、]/g, '')
+    .normalize('NFKC')
     .toLowerCase();
 
-// ユーザーの質問がマップと一致するか判定する関数
+// ✅ 完全一致＋正規化マッチ関数
 export const getStaticFaqAnswer = (userMessage) => {
-  const normalizedInput = normalize(userMessage);
+  const input = normalize(userMessage);
   for (const faq of staticFaqMap) {
-    if (normalize(faq.question) === normalizedInput) {
+    if (normalize(faq.question) === input) {
       return faq.answer;
     }
   }
   return null;
 };
+
+// ✅ デバッグ用にも使える
+export { staticFaqMap };

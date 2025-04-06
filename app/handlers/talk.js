@@ -7,12 +7,18 @@ import Context from '../context.js';
 import { updateHistory } from '../history/index.js';
 import { getPrompt, setPrompt } from '../prompt/index.js';
 
-import mebaruSystemPrompt from '../prompt/fishCharacter.js'; // 🐟 メバルくんキャラ設定
+import mebaruSystemPrompt from '../prompt/fishCharacter.js'; // 🐟 メバルくんのキャラ設定
+
 import fs from 'fs';
 import path from 'path';
+import { fileURLToPath } from 'url';
 
-// ✅ FAQ読み込み（Vercel対応の絶対パス）
-const faqPath = path.resolve('app/faq/faq.txt');
+// ✅ __dirnameをESMで再現
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
+
+// ✅ faq.txt を handlers ディレクトリからの相対パスで読み込む
+const faqPath = path.resolve(__dirname, '../faq/faq.txt');
 const faqText = fs.readFileSync(faqPath, 'utf-8');
 
 /**
@@ -33,7 +39,7 @@ const exec = (context) => check(context) && (
   async () => {
     const prompt = getPrompt(context.userId);
 
-    // ✅ systemプロンプトにキャラ設定＋FAQをまとめて渡す
+    // ✅ キャラ設定＋FAQ全文を system プロンプトにまとめる
     prompt.write('system', `
 ${mebaruSystemPrompt}
 
@@ -42,7 +48,7 @@ ${mebaruSystemPrompt}
 ${faqText}
     `.trim());
 
-    // ✅ ユーザーの入力を追加
+    // ✅ ユーザー入力を追加
     prompt.write(ROLE_HUMAN, `${t('__COMPLETION_DEFAULT_AI_TONE')(config.BOT_TONE)}${context.trimmedText}`).write(ROLE_AI);
 
     try {

@@ -1,7 +1,7 @@
 import { middleware, Client } from '@line/bot-sdk';
 import { Configuration, OpenAIApi } from 'openai';
 
-// LINE bot 設定
+// LINE設定
 const config = {
   channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN,
   channelSecret: process.env.LINE_CHANNEL_SECRET,
@@ -9,23 +9,24 @@ const config = {
 
 const client = new Client(config);
 
+// OpenAI設定
 const openai = new OpenAIApi(
   new Configuration({
     apiKey: process.env.OPENAI_API_KEY,
   })
 );
 
-// VercelがbodyParser無効を認識するための正しい設定名
+// VercelのAPI設定（BodyParserを無効化）
 export const config = {
   api: {
     bodyParser: false,
   },
 };
 
-// defaultではmiddleware
+// ミドルウェア
 const lineMiddleware = middleware(config);
 
-// handler本体
+// Webhook本体
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).send('Method Not Allowed');
@@ -33,7 +34,6 @@ export default async function handler(req, res) {
 
   lineMiddleware(req, res, async () => {
     const events = req.body.events;
-
     if (!events || events.length === 0) {
       return res.status(200).send('No Events');
     }
@@ -49,20 +49,19 @@ export default async function handler(req, res) {
               messages: [{ role: 'user', content: userMessage }],
             });
 
-            const gptReply = completion.data.choices[0].message.content;
+            const replyText = completion.data.choices[0].message.content;
 
             await client.replyMessage(event.replyToken, {
               type: 'text',
-              text: gptReply,
+              text: replyText,
             });
           }
         })
       );
-
       res.status(200).send('OK');
     } catch (err) {
       console.error(err);
-      res.status(500).end();
+      res.status(500).send('Internal Server Error');
     }
   });
 }

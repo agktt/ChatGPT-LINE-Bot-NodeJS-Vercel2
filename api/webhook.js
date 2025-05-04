@@ -7,33 +7,30 @@ const config = {
   channelSecret: process.env.LINE_CHANNEL_SECRET,
 };
 
-// ChatGPT 設定
+const client = new Client(config);
+
 const openai = new OpenAIApi(
   new Configuration({
     apiKey: process.env.OPENAI_API_KEY,
   })
 );
 
-// LINE クライアント
-const client = new Client(config);
-
-// Vercel API設定（Body Parser無効化）
-export const configApi = {
+// VercelがbodyParser無効を認識するための正しい設定名
+export const config = {
   api: {
     bodyParser: false,
   },
 };
 
-// ミドルウェア
+// defaultではmiddleware
 const lineMiddleware = middleware(config);
 
-// Vercel対応 handler
+// handler本体
 export default async function handler(req, res) {
   if (req.method !== 'POST') {
     return res.status(405).send('Method Not Allowed');
   }
 
-  // LINE署名検証
   lineMiddleware(req, res, async () => {
     const events = req.body.events;
 
@@ -47,7 +44,6 @@ export default async function handler(req, res) {
           if (event.type === 'message' && event.message.type === 'text') {
             const userMessage = event.message.text;
 
-            // ChatGPTへ送信
             const completion = await openai.createChatCompletion({
               model: 'gpt-3.5-turbo',
               messages: [{ role: 'user', content: userMessage }],
@@ -55,7 +51,6 @@ export default async function handler(req, res) {
 
             const gptReply = completion.data.choices[0].message.content;
 
-            // LINEへ返信
             await client.replyMessage(event.replyToken, {
               type: 'text',
               text: gptReply,

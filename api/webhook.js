@@ -2,7 +2,7 @@ import { middleware, Client, validateSignature } from '@line/bot-sdk';
 import { Configuration, OpenAIApi } from 'openai';
 import getRawBody from 'raw-body';
 
-// LINE bot設定
+// LINE bot 設定（名前を lineConfig に変更）
 const lineConfig = {
   channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN,
   channelSecret: process.env.LINE_CHANNEL_SECRET,
@@ -16,7 +16,7 @@ const openai = new OpenAIApi(
   })
 );
 
-// Vercel対応：bodyParser無効
+// Vercel API 設定（configという名前でOK）
 export const config = {
   api: {
     bodyParser: false,

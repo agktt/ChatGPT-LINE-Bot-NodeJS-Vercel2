@@ -2,12 +2,13 @@ import { middleware, Client, validateSignature } from '@line/bot-sdk';
 import { Configuration, OpenAIApi } from 'openai';
 import getRawBody from 'raw-body';
 
-const config = {
+// LINE bot設定
+const lineConfig = {
   channelAccessToken: process.env.LINE_CHANNEL_ACCESS_TOKEN,
   channelSecret: process.env.LINE_CHANNEL_SECRET,
 };
 
-const client = new Client(config);
+const client = new Client(lineConfig);
 
 const openai = new OpenAIApi(
   new Configuration({
@@ -30,7 +31,7 @@ export default async function handler(req, res) {
   const rawBody = await getRawBody(req, { encoding: true });
   const signature = req.headers['x-line-signature'];
 
-  if (!validateSignature(rawBody, config.channelSecret, signature)) {
+  if (!validateSignature(rawBody, lineConfig.channelSecret, signature)) {
     return res.status(401).send('Unauthorized');
   }
 
